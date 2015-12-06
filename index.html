@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html ng-app="titleToolBox">
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" type="text/css"href="style.css">-->
+
+    <script type="text/javascript" src="lib/jquery.js"></script>
+    <!--<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>-->
+    <script src="lib/angular.js"></script>
+    <script src="lib/angular-animate.js"></script>
+    <script src="lib/angular-cookies.js"></script>
+    <script src="lib/angular-touch.js"></script>
+    <script src="lib/angular-sanitize.js"></script>
+    <script src="lib/angular-resource.js"></script>
+    <script src="lib/ngStorage.js"></script>
+    <script src="app.js"></script>
+    <script src="service/ol.factory.js"></script>
+    <script src="directive/gAutocomplete.directive.js"></script>
+    <script src="directive/olMap.directive.js"></script>
+    <script src="config/app.mapScriptsLoader.run.js"></script>
+    <script src="config/app.flags.value.js"></script>
+    <!--<script src="lib/app-7281821f.js"></script>-->
+    <!--<script src="directive/ngAutocomplete.js"></script>-->
+    <script src="controller/appControler.js"></script>
+    <script src="controller/base.controller.js"></script>
+
+    <style>
+        #form {
+
+            margin-left: 50px;
+            width: 500px
+        }
+
+        .indent {
+
+            margin-left: 50px;
+        }
+
+        .move-down {
+            margin-top: 100px;
+        }
+        p{
+            color: gray;
+        }
+        h3{
+            font-size: 13px;
+            color: cyan;
+            font-weight: normal !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="col col-lg-12">
+        <p class="text-center">
+            <b>You can search in three different ways</b>
+            <br/>
+            HINT: Enter the full address if you know it, use the search box if you’re not sure, or find the property on the map and click on it.
+        </p>
+        <br/>
+        <div class="row">
+            <div class="col-sm-6">
+                <div>
+                    <form data-ng-submit="" >
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="autocomplete" placeholder="Search for an address..."
+                                           data-ng-disabled="lookupAddressObj.sending"
+                                           data-ng-model="lookupAddressObj.autocomplete" data-google-autocomplete="" data-details="lookupAddressObj.data" data-map-object="lookupAddressObj">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="">
+                    <form name="lookupAddressForm" class="validate-form" novalidate=""
+                          data-ng-class="{'form-loading': lookupAddressObj.sending }" data-ng-submit="lookupAddress( lookupAddressForm )">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="site_street_number" placeholder="Street Number"
+                                           data-ng-model="lookupAddressObj.data.site_street_number" data-ng-disabled="lookupAddressObj.sending"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="site_name" placeholder="Street Name"
+                                           data-ng-model="lookupAddressObj.data.site_route" data-ng-disabled="lookupAddressObj.sending"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="site_city" placeholder="City"
+                                           data-ng-model="lookupAddressObj.data.site_city" data-ng-disabled="lookupAddressObj.sending"/>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="site_state" placeholder="State"
+                                           data-ng-model="lookupAddressObj.data.site_state" data-ng-disabled="lookupAddressObj.sending"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="site_zip" placeholder="Zip"
+                                           data-ng-model="lookupAddressObj.data.site_zip" data-ng-disabled="lookupAddressObj.sending"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12" data-ng-show="lookupAddressObj.status.message">
+                                <div data-ng-class="{'alert alert-success' : lookupAddressObj.status.type === 'success', 'alert alert-danger' : lookupAddressObj.status.type === 'error'}">
+                                    <span data-ng-bind-html="lookupAddressObj.status.message"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <button type="button" class="btn btn-danger" data-ng-disabled="lookupAddressObj.sending"
+                                        data-ng-click="resetForm(lookupAddressForm)">Reset</button>
+                                <button type="submit" class="btn btn-info" data-ng-disabled="lookupAddressObj.sending"
+                                        data-ng-class="{'loading': lookupAddressObj.sending}">
+                                    Search for records
+                                    <i class="fa fa-spinner fa-pulse"></i>
+                                </button>
+                                <button type="button" data-ng-show="showButton === 'address'" class="btn btn-primary" data-ng-disabled="lookupAPNObj.sending"
+                                        data-ng-click="openShowResultModal()">Show Results</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div style="height: 260px; width: 100%;" class="async" data-ol-map="" data-options="{zoomControls: false}" data-map-object="lookupAddressObj">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--<form id="form" role="form">-->
+
+
+
+        <!--&lt;!&ndash;<div class="form-group move-down">&ndash;&gt;-->
+            <!--&lt;!&ndash;<label for="Autocomplete">Autocomplete search</label>&ndash;&gt;-->
+            <!--&lt;!&ndash;<input type="text" id="Autocomplete" class="form-control" ng-autocomplete="result1" details="details1" options="options1"/>&ndash;&gt;-->
+        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--&lt;!&ndash;<div>result: {{result}}</div>&ndash;&gt;-->
+        <!--&lt;!&ndash;<div class="row">&ndash;&gt;-->
+            <!--&lt;!&ndash;<div class="col col-lg-8">&ndash;&gt;-->
+                <!--&lt;!&ndash;<input type="text" placeholder="street number"  class="form-control"><br>&ndash;&gt;-->
+                <!--&lt;!&ndash;<input type="text" placeholder="street name" class="form-control" ><br>&ndash;&gt;-->
+                <!--&lt;!&ndash;<input type="text" placeholder="city" class="form-control"><br>&ndash;&gt;-->
+                <!--&lt;!&ndash;<input type="text" placeholder='state' class="form-control"><br>&ndash;&gt;-->
+                <!--&lt;!&ndash;<input type="text" placeholder='zip' class="form-control"><br>&ndash;&gt;-->
+            <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;<div class="form-group move-down">&ndash;&gt;-->
+            <!--&lt;!&ndash;<label for="Autocomplete">Autocomplete - Cities in Canada</label>&ndash;&gt;-->
+            <!--&lt;!&ndash;<input type="text" id="Autocomplete" class="form-control" ng-autocomplete="result2" details="details2" options="options2"/>&ndash;&gt;-->
+        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--&lt;!&ndash;<div>result: {{result}}</div>&ndash;&gt;-->
+
+        <!--&lt;!&ndash;<div class="form-group move-down">&ndash;&gt;-->
+            <!--&lt;!&ndash;<label for="Autocomplete">Autocomplete - Establishments in the UK</label>&ndash;&gt;-->
+            <!--&lt;!&ndash;<input type="text" id="Autocomplete" class="form-control" ng-autocomplete="result3" details="details3" options="options3"/>&ndash;&gt;-->
+        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+        <!--&lt;!&ndash;<div>result: {{result}}</div>&ndash;&gt;-->
+    <!--</form>-->
+</div>
+
+
+</body>
+</html>
