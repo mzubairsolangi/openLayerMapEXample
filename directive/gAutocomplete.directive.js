@@ -162,7 +162,7 @@
           lonlat = new OpenLayers.LonLat(place.geometry.location.lng(), place.geometry.location.lat())
             .transform( mapDefaults.projections.geographic, mapDefaults.projections.mercator);
 
-          map.setCenter(lonlat, 17);
+          map.setCenter(lonlat, 10);
 
           var feature = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat),
