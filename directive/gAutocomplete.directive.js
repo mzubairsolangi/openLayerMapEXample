@@ -1,5 +1,5 @@
 /**
- *  * Created by Shahzad on 6/18/2015.
+ *  * Created by zubair on 6/18/2015.
  */
 
 //taken from https://gist.github.com/kirschbaum/fcac2ff50f707dae75dc
@@ -26,7 +26,12 @@
       link: function ($scope, $element, $attrs, model) {
 
         var autocomplete, autocompleteOptions,
-          mapDefaults, autoCompleteListener;
+          mapDefaults, autoCompleteListener,latLongg,popuppp;
+        var apiKey = "AqfESGm-lRuN36vFdiozlVxIpHuydCGANra1-8WpHKPhCpNv2RAzPa1BNJPdtfwe";
+        var GOOGLE_API_KEY = "AIzaSyA_VYX50VGZMYnPW9dgg0CTDrbb3u__lZg";
+        var PRINTER;
+        var SHADOW_Z_INDEX = 10;
+        var MARKER_Z_INDEX = 11;
 
         /*listeners*/
         $scope.$on('$destroy', destroyAutocomplete );
@@ -162,7 +167,8 @@
           lonlat = new OpenLayers.LonLat(place.geometry.location.lng(), place.geometry.location.lat())
             .transform( mapDefaults.projections.geographic, mapDefaults.projections.mercator);
 
-          map.setCenter(lonlat, 17);
+          map.setCenter(lonlat, 10);
+
 
           var feature = new OpenLayers.Feature.Vector(
             new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat),
@@ -173,6 +179,7 @@
               graphicWidth: mapDefaults.markerDefaults.width
             }
           );
+
 
           vectorLayer.addFeatures([feature]);
 
@@ -193,7 +200,7 @@
             null,
             false
           );
-
+          console.log('lat,long',feature.geometry.getBounds().getCenterLonLat());
           map.addPopup(feature.popup);
 
           //since the popup is added on map, now resize it to required dimensions.
@@ -202,7 +209,60 @@
 
           //after modifying popup size, make popup completely visible
           feature.popup.panIntoView();
+
+          // Add a drag feature control to move pin around.
+          var dragger = new OpenLayers.Control.DragFeature(vectorLayer, {
+            onStart: dragFeatureStart,
+            onComplete: dragFeatureComplete
+          });
+          map.addControl(dragger);
+          dragger.activate();
+
+
         }
+
+
+        function dragFeatureStart(feature, pixel){
+          console.log(feature);
+          var map, place, lonlat, vectorLayer;
+
+          place = autocomplete.getPlace();
+          if ( !place.geometry ) {
+            return;
+          }
+
+          feature.popup.destroy();
+        }
+
+        function dragFeatureComplete(feature, pixel) {
+          console.log('Drag event for', feature, pixel);
+          if (feature) {
+            feature.attributes = {
+              posx: pixel.x,
+              posy: pixel.y
+            };
+            var map = $scope.mapObject.map;
+
+            var address_ = [
+              '<div class="info-box">',
+              ' <h3>Search property</h3>',
+              ' <p>',
+              $element.val(),
+              ' </p>',
+              '</div>'
+            ].join(' ');
+
+            feature.popup =  new OpenLayers.Popup.FramedCloud("pop",
+                feature.geometry.getBounds().getCenterLonLat(),
+                null,
+                address_,
+                null,
+                false
+            );
+            map.addPopup(feature.popup);
+          }
+        };
+
 
         //to destroy autocomplete
         function destroyAutocomplete() {

@@ -35,6 +35,7 @@
         $scope.accordionStates = [true, false, false];
 
 
+
         /*functions declarations*/
         //to reset a form
         function resetForm( form ) {
@@ -81,6 +82,8 @@
                     //...
                 });
         }
+
+        
 
         //to lookup an address for given details
         function lookupAddress( lookupAddressForm ) {
