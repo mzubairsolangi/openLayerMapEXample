@@ -16,7 +16,7 @@
 
     var mapDefaults = {
       lonLat: [-117.844105, 33.683219],
-      zoom: 14,
+      zoom:10,
       numZoomLevels: 20,
       markerDefaults: {
         image: 'assets/images/_pin.png',
